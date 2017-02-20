@@ -1,0 +1,9 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
+ 
+<suite name="LiteCartTests" verbose="1" >
+  <test name="ru.stqa" >
+    <classes>
+       <class name="LoginLiteCartTest" />
+    </classes>
+  </test>
+</suite>
