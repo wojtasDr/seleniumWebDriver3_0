@@ -34,11 +34,13 @@ public class LoginLiteCartTest {
 	private By pageTitleLocator = By.cssSelector("td#content h1");
 	private By menuItemsLocator = By.cssSelector("li#app->a");
 	private By menuSubItemsLocator = By.xpath("//li[starts-with(@id,'doc-')]/a");
+	private By allArticlesLocator = By.cssSelector("div.content li[class^=product]");
+	private By articleStickerLocator = By.xpath(".//div[starts-with(@class,'sticker')]");
 	
 	//WebElements
-	private WebElement pageTitle;
 	private List<WebElement> menuItems = new ArrayList<WebElement>();
 	private List<WebElement> menuSubItems = new ArrayList<WebElement>();
+	private List<WebElement> allArticles = new ArrayList<WebElement>();
 	
 	@BeforeTest
 	public void start() {
@@ -82,20 +84,29 @@ public class LoginLiteCartTest {
 					menuSubItems.get(j).click();
 					menuSubItems = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(menuSubItemsLocator));
 				
-					//pageTitle = wait.until(ExpectedConditions.presenceOfElementLocated(pageTitleLocator));
-					//System.out.println("Title1: " + pageTitle.getText());
 					assert(FindElementsMethods.isElementPresent(driver, pageTitleLocator));
 				}
 			}
 			else {
-				//pageTitle = wait.until(ExpectedConditions.presenceOfElementLocated(pageTitleLocator));
-				//System.out.println("Title: " + pageTitle.getText());
 				assert(FindElementsMethods.isElementPresent(driver, pageTitleLocator));
 			}
 			menuItems = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(menuItemsLocator));
 		}
 	}
-
+	
+	@Test 
+	public void checkNumberOfStickersTest(){
+		driver.get("http://localhost/litecart/en/");
+		
+		allArticles = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(allArticlesLocator));
+		
+		for (WebElement article : allArticles){
+			int numberOfStickers = 0;
+			numberOfStickers = FindElementsMethods.getNumberOfElements(article, articleStickerLocator);
+			assert(numberOfStickers == 1);
+		}	
+	}
+	
 	@AfterTest
 	public void stop() {
 		driver.quit();
