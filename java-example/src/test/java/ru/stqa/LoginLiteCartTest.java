@@ -1,8 +1,11 @@
 package ru.stqa;
 
+import static org.assertj.core.api.Assertions.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import org.assertj.core.api.SoftAssertions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -19,28 +22,64 @@ public class LoginLiteCartTest {
 	private WebDriver driver;
 	private WebDriverWait wait;
 	
-	//Login Page WebElements
-	private WebElement userNameInput;
-	private WebElement passwordInput;
-	private WebElement loginButton;
+	private SoftAssertions softAssertions;
 	
 	//Login credentials
 	private final String userName = "admin";
 	private final String password = "admin";	
 	
 	private final String homePageTitle = "My Store";
+	private List<String> countriesList = new ArrayList<String>();
+	private List<String> zonesCodesList = new ArrayList<String>();
+	//---Locators
 	
-	//Locators
+	//Login Page
+	private By userNameInputLocator = By.name("username");
+	private By passwordInputLocator = By.name("password");
+	private By loginButtonLocator = By.name("login");
+	
+	//Home Page
 	private By pageTitleLocator = By.cssSelector("td#content h1");
+	
+	//Navigation Page
 	private By menuItemsLocator = By.cssSelector("li#app->a");
 	private By menuSubItemsLocator = By.xpath("//li[starts-with(@id,'doc-')]/a");
+	private By countryButtonLocator = By.xpath("//a/span[starts-with(.,'Countries')]");
+	
+	//Articles Page
 	private By allArticlesLocator = By.cssSelector("div.content li[class^=product]");
 	private By articleStickerLocator = By.xpath(".//div[starts-with(@class,'sticker')]");
 	
-	//WebElements
+	//Countries Page
+	private By countriesTableRowsLocator = By.xpath("//tr[@class='row']");
+	private By countryNameLocator = By.xpath(".//td/a[contains(@href,'country')][1]");
+	private By countryZoneLocator = By.xpath(".//td[6]");
+	
+	//Edit Country Page
+	private By countryZoneCodesLocator = By.xpath("//tr[not(@class='header')]/td[2]/input[@type='hidden']/..");
+	
+	
+	//---WebElements
+	
+	//Login Page
+	private WebElement userNameInput;
+	private WebElement passwordInput;
+	private WebElement loginButton;
+	
+	//Navigation Page
+	private WebElement countryButton;
 	private List<WebElement> menuItems = new ArrayList<WebElement>();
 	private List<WebElement> menuSubItems = new ArrayList<WebElement>();
+	
+	//Articles Page
 	private List<WebElement> allArticles = new ArrayList<WebElement>();
+	
+	//Countries Page
+	private WebElement countryName;
+	private List<WebElement> countriesTableRows = new ArrayList<WebElement>();
+	
+	//Edit Country Page
+	private List<WebElement> countryZoneCodes = new ArrayList<WebElement>();
 	
 	@BeforeTest
 	public void start() {
@@ -54,24 +93,26 @@ public class LoginLiteCartTest {
 		driver.get("http://localhost/litecart/admin/login.php");
 		
 		//Type password
-		userNameInput = driver.findElement(By.name("username"));
+		userNameInput = driver.findElement(userNameInputLocator);
 		userNameInput.clear();
 		userNameInput.sendKeys(userName);
 		
 		//Type userName
-		passwordInput = driver.findElement(By.name("password"));
+		passwordInput = driver.findElement(passwordInputLocator);
 		passwordInput.clear();
 		passwordInput.sendKeys(password);
 		
 		//Type userName
-		loginButton = driver.findElement(By.name("login"));
+		loginButton = driver.findElement(loginButtonLocator);
 		loginButton.click();
 		
 		wait.until(ExpectedConditions.titleIs(homePageTitle));
 	}
 	
-	@Test
+	@Test (dependsOnMethods = { "loginLiteCartWithCorrectCrendentials" })
 	public void navigateMenuItemsTest(){
+		driver.get("http://localhost/litecart/admin");
+		
 		menuItems = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(menuItemsLocator));
 
 		for (int i = 0; i < menuItems.size(); i++){
@@ -94,7 +135,7 @@ public class LoginLiteCartTest {
 		}
 	}
 	
-	@Test 
+	@Test  (dependsOnMethods = { "loginLiteCartWithCorrectCrendentials" })
 	public void checkNumberOfStickersTest(){
 		driver.get("http://localhost/litecart/en/");
 		
@@ -105,6 +146,43 @@ public class LoginLiteCartTest {
 			numberOfStickers = FindElementsMethods.getNumberOfElements(article, articleStickerLocator);
 			assert(numberOfStickers == 1);
 		}	
+	}
+	
+	@Test (dependsOnMethods = { "loginLiteCartWithCorrectCrendentials" })
+	public void checkCountriesZonesSortingTest(){
+		softAssertions = new SoftAssertions();
+		
+		driver.get("http://localhost/litecart/admin/?app=countries&doc=countries");
+		
+		countriesTableRows = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(countriesTableRowsLocator));
+		
+		for (int i = 0; i < countriesTableRows.size(); i++){
+			int numberOfZones = 0;
+			
+			countriesList.add(countriesTableRows.get(i).findElement(countryNameLocator).getText());
+
+			numberOfZones = Integer.parseInt(countriesTableRows.get(i).findElement(countryZoneLocator).getText());
+			
+			if(numberOfZones != 0){
+				countriesTableRows.get(i).findElement(countryNameLocator).click();
+				
+				countryZoneCodes = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(countryZoneCodesLocator));
+
+				for (WebElement zone : countryZoneCodes){
+					zonesCodesList.add(zone.getText());
+				}
+				
+				softAssertions.assertThat(zonesCodesList).isSorted();
+				
+				countryButton = driver.findElement(countryButtonLocator);
+				countryButton.click();
+				
+				countriesTableRows = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(countriesTableRowsLocator));	
+			}
+		}
+		softAssertions.assertThat(countriesList).isSorted();
+		
+		softAssertions.assertAll();
 	}
 	
 	@AfterTest
