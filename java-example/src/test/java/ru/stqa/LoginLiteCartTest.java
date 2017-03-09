@@ -32,6 +32,9 @@ public class LoginLiteCartTest {
 	private List<String> countriesList = new ArrayList<String>();
 	private List<String> zonesCodesList = new ArrayList<String>();
 	private List<String> geoZonesList = new ArrayList<String>();
+	
+	private List<String> articleDataAllArticlesPage = new ArrayList<String>();
+	private List<String> articleDataArticlePage = new ArrayList<String>();
 	//---Locators
 	
 	//Login Page
@@ -51,6 +54,15 @@ public class LoginLiteCartTest {
 	//Articles Page
 	private By allArticlesLocator = By.cssSelector("div.content li[class^=product]");
 	private By articleStickerLocator = By.xpath(".//div[starts-with(@class,'sticker')]");
+	private By campaignArticlesLocator = By.cssSelector("div#box-campaigns li a.link");
+	private By articleNameLocator = By.xpath(".//div[@class='name']");
+	private By articleRegularPriceLocator = By.xpath(".//div[@class='price-wrapper']/s[@class='regular-price']");
+	private By articleCampaignPriceLocator = By.xpath(".//div[@class='price-wrapper']/strong[@class='campaign-price']");
+	
+	//Campaign article page
+	private By campaignArticleNameLocator = By.cssSelector("h1.title");
+	private By campaignArticleRegularPriceLocator = By.cssSelector("div.information s.regular-price");
+	private By campaignArticleCampaignPriceLocator = By.cssSelector("div.information strong.campaign-price");
 	
 	//Countries Page
 	private By countriesTableRowsLocator = By.xpath("//tr[@class='row']");
@@ -80,7 +92,9 @@ public class LoginLiteCartTest {
 	private List<WebElement> menuSubItems = new ArrayList<WebElement>();
 	
 	//Articles Page
+	private WebElement campaignArticle;
 	private List<WebElement> allArticles = new ArrayList<WebElement>();
+	private List<WebElement> campaignArticles = new ArrayList<WebElement>();
 	
 	//Countries Page
 	private List<WebElement> countriesTableRows = new ArrayList<WebElement>();
@@ -223,6 +237,44 @@ public class LoginLiteCartTest {
 			geoZoneButton.click();
 			
 			geoZonesCountry = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(geoZonesCountryLocator));
+		}
+		softAssertions.assertAll();
+	}
+	
+	@Test (dependsOnMethods = { "loginLiteCartWithCorrectCrendentials" })
+	public void checkFirstCampaignProductTest(){
+		softAssertions = new SoftAssertions();
+		
+		driver.get("http://localhost/litecart/en/");
+		
+		campaignArticles = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(campaignArticlesLocator));
+		
+		if(!campaignArticles.isEmpty()){
+			campaignArticle = campaignArticles.get(0);
+			
+			articleDataAllArticlesPage.add(campaignArticle.findElement(articleNameLocator).getText());
+			articleDataAllArticlesPage.add(campaignArticle.findElement(articleRegularPriceLocator).getText());
+			articleDataAllArticlesPage.add(campaignArticle.findElement(articleCampaignPriceLocator).getText());
+			
+			softAssertions.assertThat(campaignArticle.findElement(articleRegularPriceLocator).getCssValue("color")).isEqualTo("rgba(119, 119, 119, 1)");
+			softAssertions.assertThat(campaignArticle.findElement(articleRegularPriceLocator).getCssValue("text-decoration")).isEqualTo("line-through");
+			
+			softAssertions.assertThat(campaignArticle.findElement(articleCampaignPriceLocator).getCssValue("color")).isEqualTo("rgba(204, 0, 0, 1)");
+			softAssertions.assertThat(campaignArticle.findElement(articleCampaignPriceLocator).getCssValue("font-weight")).isEqualTo("bold");
+
+			campaignArticle.click();
+			
+			articleDataArticlePage.add(driver.findElement(campaignArticleNameLocator).getText());
+			articleDataArticlePage.add(driver.findElement(campaignArticleRegularPriceLocator).getText());
+			articleDataArticlePage.add(driver.findElement(campaignArticleCampaignPriceLocator).getText());
+			
+			softAssertions.assertThat(driver.findElement(campaignArticleRegularPriceLocator).getCssValue("color")).isEqualTo("rgba(102, 102, 102, 1)");
+			softAssertions.assertThat(driver.findElement(campaignArticleRegularPriceLocator).getCssValue("text-decoration")).isEqualTo("line-through");
+			
+			softAssertions.assertThat(driver.findElement(campaignArticleCampaignPriceLocator).getCssValue("color")).isEqualTo("rgba(204, 0, 0, 1)");
+			softAssertions.assertThat(driver.findElement(campaignArticleCampaignPriceLocator).getCssValue("font-weight")).isEqualTo("bold");
+			
+			softAssertions.assertThat(articleDataArticlePage).isEqualTo(articleDataAllArticlesPage);
 		}
 		softAssertions.assertAll();
 	}
