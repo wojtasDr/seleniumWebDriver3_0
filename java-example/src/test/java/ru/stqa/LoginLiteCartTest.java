@@ -31,6 +31,7 @@ public class LoginLiteCartTest {
 	private final String homePageTitle = "My Store";
 	private List<String> countriesList = new ArrayList<String>();
 	private List<String> zonesCodesList = new ArrayList<String>();
+	private List<String> geoZonesList = new ArrayList<String>();
 	//---Locators
 	
 	//Login Page
@@ -45,6 +46,7 @@ public class LoginLiteCartTest {
 	private By menuItemsLocator = By.cssSelector("li#app->a");
 	private By menuSubItemsLocator = By.xpath("//li[starts-with(@id,'doc-')]/a");
 	private By countryButtonLocator = By.xpath("//a/span[starts-with(.,'Countries')]");
+	private By geoZonesButtonLocator = By.xpath("//a/span[starts-with(.,'Geo Zones')]");
 	
 	//Articles Page
 	private By allArticlesLocator = By.cssSelector("div.content li[class^=product]");
@@ -58,6 +60,11 @@ public class LoginLiteCartTest {
 	//Edit Country Page
 	private By countryZoneCodesLocator = By.xpath("//tr[not(@class='header')]/td[2]/input[@type='hidden']/..");
 	
+	//GeoZones Page
+	private By geoZonesCountryLocator = By.xpath("//tr[@class='row']//td/a[not(@title)]"); 
+	
+	//Edit GeoZones Page
+	private By geoZonesLocator = By.xpath("//table[@id]//tr[not(@class)]/td/select[not(@class)]");
 	
 	//---WebElements
 	
@@ -68,6 +75,7 @@ public class LoginLiteCartTest {
 	
 	//Navigation Page
 	private WebElement countryButton;
+	private WebElement geoZoneButton;
 	private List<WebElement> menuItems = new ArrayList<WebElement>();
 	private List<WebElement> menuSubItems = new ArrayList<WebElement>();
 	
@@ -75,12 +83,18 @@ public class LoginLiteCartTest {
 	private List<WebElement> allArticles = new ArrayList<WebElement>();
 	
 	//Countries Page
-	private WebElement countryName;
 	private List<WebElement> countriesTableRows = new ArrayList<WebElement>();
 	
 	//Edit Country Page
 	private List<WebElement> countryZoneCodes = new ArrayList<WebElement>();
 	
+	//GeoZones Page
+	private List<WebElement> geoZonesCountry = new ArrayList<WebElement>();
+	
+	//Edit GeoZones Page
+	private List<WebElement> geoZones = new ArrayList<WebElement>();
+	
+		
 	@BeforeTest
 	public void start() {
 		System.setProperty("webdriver.chrome.driver", "C:\\Users\\wojtas_dr\\.m2\\repository\\chromedriver.exe");
@@ -149,7 +163,7 @@ public class LoginLiteCartTest {
 	}
 	
 	@Test (dependsOnMethods = { "loginLiteCartWithCorrectCrendentials" })
-	public void checkCountriesZonesSortingTest(){
+	public void checkCountriesAndZonesSortingTest(){
 		softAssertions = new SoftAssertions();
 		
 		driver.get("http://localhost/litecart/admin/?app=countries&doc=countries");
@@ -182,6 +196,34 @@ public class LoginLiteCartTest {
 		}
 		softAssertions.assertThat(countriesList).isSorted();
 		
+		softAssertions.assertAll();
+	}
+	
+	@Test (dependsOnMethods = { "loginLiteCartWithCorrectCrendentials" })
+	public void checkZonesSortingTest(){
+		softAssertions = new SoftAssertions();
+		
+		driver.get("http://localhost/litecart/admin/?app=geo_zones&doc=geo_zones");
+		
+		geoZonesCountry = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(geoZonesCountryLocator));
+		System.out.println("Number of found countries "+ geoZonesCountry.size());
+		for (int i = 0; i < geoZonesCountry.size(); i++){
+			geoZonesList = new ArrayList<String>();
+			
+			geoZonesCountry.get(i).click();
+			
+			geoZones = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(geoZonesLocator));
+			
+			for (WebElement gZ : geoZones){
+				geoZonesList.add(gZ.getAttribute("value"));		
+			}
+			softAssertions.assertThat(geoZonesList).isSorted();
+			
+			geoZoneButton = driver.findElement(geoZonesButtonLocator);
+			geoZoneButton.click();
+			
+			geoZonesCountry = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(geoZonesCountryLocator));
+		}
 		softAssertions.assertAll();
 	}
 	
