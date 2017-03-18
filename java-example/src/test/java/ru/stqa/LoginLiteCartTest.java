@@ -1,7 +1,5 @@
 package ru.stqa;
 
-import static org.assertj.core.api.Assertions.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
