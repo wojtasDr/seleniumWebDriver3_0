@@ -4,6 +4,7 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -32,6 +33,13 @@ public class NewProductTests {
 	private By catalogButtonLocator = By.xpath("//a/span[text()='Catalog']/..");
 	
 	//Add new product page
+	private By generalTabButtonLocator = By.cssSelector("a[href$='general']");
+	private By informationTabButtonLocator = By.cssSelector("a[href$='information']");
+	private By dataTabButtonLocator = By.cssSelector("a[href$='data']");
+	private By pricesTabButtonLocator = By.cssSelector("a[href$='prices']");
+	private By optionsTabButtonLocator = By.cssSelector("a[href$='options']");
+	private By optionsStockTabButtonLocator = By.cssSelector("a[href$='stock']");
+	
 	private By statusRadioEnabledLocator = By.xpath("//label[text()=' Enabled']/input[@type='radio']");
 	private By statusRadioDisabledLocator = By.xpath("//label[text()=' Disabled']/input[@type='radio']");
 	private By productNameLocator = By.xpath("//input[contains(@name,'name')]");
@@ -47,8 +55,16 @@ public class NewProductTests {
 	private By quantityUnitLocator = By.xpath("//td/strong[text()='Quantity Unit']/../select");
 	private By deliveryStatusLocator = By.xpath("//td/strong[text()='Delivery Status']/../select");
 	private By soldOutStatusLocator = By.xpath("//td/strong[text()='Sold Out Status']/../select");
-	private By dateValidFromLocator = By.xpath("//td/strong[text()='Date Valid From']/../input");
-	private By dateValidToLocator = By.xpath("//td/strong[text()='Date Valid To']/../input");
+	private String dateValidFromLocator = "input[name=\"date_valid_from\"]";
+	private String dateValidToLocator = "input[name=\"date_valid_to\"]";
+	
+	private By manufacturerSelectLocator = By.cssSelector("select[name='manufacturer_id']");
+	private By supplierSelectLocator = By.cssSelector("select[name='supplier_id']");
+	private By keywordsInputLocator = By.cssSelector("input[name='keywords']");
+	private By shortDescriptionInputLocator = By.cssSelector("input[name='short_description[en]']");
+	private By descriptionInputLocator = By.cssSelector("textarea[name='description[en]']");
+	private By headTitleInputLocator = By.cssSelector("input[name='head_title[en]']");
+	private By metaDescriptionInputLocator = By.cssSelector("input[name='meta_description[en]']");
 	
 	//Catalog Page 
 	private By addNewProductLocator = By.xpath("//a[text()=' Add New Product']");
@@ -64,6 +80,13 @@ public class NewProductTests {
 	//Catalog Page 
 	private WebElement addNewProduct;
 	//Add new product page
+	private WebElement generalTabButton;
+	private WebElement informationTabButton;
+	private WebElement dataTabButton;
+	private WebElement pricesTabButton;
+	private WebElement optionsTabButton;
+	private WebElement optionsStockTabButton;
+	
 	private WebElement statusRadioEnabled;
 	private WebElement statusRadioDisabled;
 	private WebElement productName;
@@ -81,6 +104,12 @@ public class NewProductTests {
 	private WebElement soldOutStatus;
 	private WebElement dateValidFrom;
 	private WebElement dateValidTo;
+	
+	private WebElement keywordsInput;
+	private WebElement shortDescriptionInput;
+	private WebElement descriptionInput;
+	private WebElement headTitleInput;
+	private WebElement metaDescriptionInput;
 	
 	@BeforeTest
 	public void start() {
@@ -116,8 +145,29 @@ public class NewProductTests {
 		newProductGeneralData.put("QuantityUnit", "pcs");
 		newProductGeneralData.put("DeliveryStatus", "3-5 days");
 		newProductGeneralData.put("SoldOutStatus", "Sold out");
+		newProductGeneralData.put("DateValidFrom", "2016-03-20");
+		newProductGeneralData.put("DateValidTo", "2016-03-30");
+		
+		NavigableMap<String,String> newProductInformationData = new TreeMap<String,String>();
+		newProductInformationData.put("Manufacturer", "ACME Corp.");
+		newProductInformationData.put("Supplier", "testName");
+		newProductInformationData.put("Keywords", "keywords test");
+		newProductInformationData.put("ShortDescription", "short description test");
+		newProductInformationData.put("Description", "description test");
+		newProductInformationData.put("HeadTitle", "head title test");
+		newProductInformationData.put("MetaDescription", "meta description test");
+		
+		generalTabButton = wait.until(ExpectedConditions.presenceOfElementLocated(generalTabButtonLocator));
+		generalTabButton.click();
 		
 		this.addNewProductGeneralData(newProductGeneralData);
+		
+		System.out.println("After general");
+		
+		informationTabButton = wait.until(ExpectedConditions.presenceOfElementLocated(informationTabButtonLocator));
+		informationTabButton.click();
+		
+		this.addNewProductInformationData(newProductInformationData);
 			
 	}
 
@@ -160,13 +210,38 @@ public class NewProductTests {
 		quantity = wait.until(ExpectedConditions.presenceOfElementLocated(quantityLocator));
 		quantity.sendKeys(newProductGeneralData.get("Quantity"));
 		
+//		this.setDatepicker(driver, dateValidFromLocator, newProductGeneralData.get("DateValidFrom"));
+//		
+//		this.setDatepicker(driver, dateValidToLocator, newProductGeneralData.get("DateValidTo"));
+		
 		this.manipulateSelectText(quantityUnitLocator, newProductGeneralData.get("QuantityUnit"));
 		
 		this.manipulateSelectText(deliveryStatusLocator, newProductGeneralData.get("DeliveryStatus"));
 		
 		this.manipulateSelectText(soldOutStatusLocator, newProductGeneralData.get("SoldOutStatus"));
-		
 	}
+	
+	public void addNewProductInformationData(NavigableMap<String,String> newProductInformationData){
+		this.manipulateSelectText(manufacturerSelectLocator, newProductInformationData.get("Manufacturer"));
+
+		//this.manipulateSelectText(supplierSelectLocator, newProductInformationData.get("Supplier"));
+		
+		keywordsInput = wait.until(ExpectedConditions.presenceOfElementLocated(keywordsInputLocator));
+		keywordsInput.sendKeys(newProductInformationData.get("Keywords"));
+
+		shortDescriptionInput = wait.until(ExpectedConditions.presenceOfElementLocated(shortDescriptionInputLocator));
+		shortDescriptionInput.sendKeys(newProductInformationData.get("ShortDescription"));
+
+		descriptionInput = wait.until(ExpectedConditions.presenceOfElementLocated(descriptionInputLocator));
+		descriptionInput.sendKeys(newProductInformationData.get("Description"));
+
+		headTitleInput = wait.until(ExpectedConditions.presenceOfElementLocated(headTitleInputLocator));
+		headTitleInput.sendKeys(newProductInformationData.get("HeadTitle"));
+
+		metaDescriptionInput = wait.until(ExpectedConditions.presenceOfElementLocated(metaDescriptionInputLocator));
+		metaDescriptionInput.sendKeys(newProductInformationData.get("MetaDescription"));
+	}
+		
 	
 	public void manipulateCheckBox(By wELocator, String status){
 		WebElement wE;
@@ -193,6 +268,23 @@ public class NewProductTests {
 		s = new Select(wE);
 		s.selectByVisibleText(selectValue);
 	}
+	
+	public void setDatepicker(WebDriver driver, String cssSelector, String date) {
+		WebElement wE;
+		
+		wE = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(cssSelector)));
+		
+		JavascriptExecutor.class.cast(driver).executeScript(String.format("$('%s').datepicker('setDate', '%s')", cssSelector, date));
+		
+//		  new WebDriverWait(driver, 30000).until(
+//
+//		    (WebDriver d) -> d.findElement(By.cssSelector(cssSelector)).isDisplayed());
+//
+//		  JavascriptExecutor.class.cast(driver).executeScript(
+//
+//		    String.format("$('%s').datepicker('setDate', '%s')", cssSelector, date));
+
+		}
 	
 	public void loginLiteCartWithCorrectCrendentials(String userName, String password) {
 		userNameInput = driver.findElement(userNameInputLocator);
