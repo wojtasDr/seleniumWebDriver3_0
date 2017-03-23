@@ -4,12 +4,11 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import org.openqa.selenium.By;
-import org.openqa.selenium.JavascriptExecutor;
+
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
@@ -61,7 +60,7 @@ public class NewProductTests {
 	private By dateValidToLocator = By.cssSelector("input[name=\"date_valid_to\"]");
 	
 	private By manufacturerSelectLocator = By.cssSelector("select[name='manufacturer_id']");
-	private By supplierSelectLocator = By.cssSelector("select[name='supplier_id']");
+	//private By supplierSelectLocator = By.cssSelector("select[name='supplier_id']");
 	private By keywordsInputLocator = By.cssSelector("input[name='keywords']");
 	private By shortDescriptionInputLocator = By.cssSelector("input[name='short_description[en]']");
 	private By descriptionInputLocator = By.cssSelector("textarea[name='description[en]']");
@@ -86,13 +85,15 @@ public class NewProductTests {
 	
 	private By plusIconLocator = By.cssSelector("a[title='Insert before'] i[class='fa fa-plus-circle']");
 	private By groupSelectLocator = By.cssSelector("select[name='options[new_1][group_id]']");
-	private By valueSelectLocator = By.cssSelector("select[name='options[new_1][value_id]']");
+	//private By valueSelectLocator = By.cssSelector("select[name='options[new_1][value_id]']");
 	private By priceOperatorSelectLocator = By.cssSelector("select[name='options[new_1][price_operator]']");
 	private By priceAdjustUsdInputLocator = By.cssSelector("input[name='options[new_1][USD]']");
 	private By priceAdjustEurInputLocator = By.cssSelector("input[name='options[new_1][EUR]']");
 	
 	private By combinationGroupSelectLocator = By.cssSelector("select[name='new_option[new_1][group_id]']");
-	private By combinationValueSelectLocator = By.cssSelector("select[name='new_option[new_1][value_id]']");
+	//private By combinationValueSelectLocator = By.cssSelector("select[name='new_option[new_1][value_id]']");
+	
+	private By saveButtonLocator = By.cssSelector("button[name='save']");
 	
 	//Catalog Page 
 	private By addNewProductLocator = By.xpath("//a[text()=' Add New Product']");
@@ -118,6 +119,8 @@ public class NewProductTests {
 	private WebElement statusRadioEnabled;
 	private WebElement statusRadioDisabled;
 	private WebElement plusIcon;
+	
+	private WebElement saveButton;
 
 	@BeforeTest
 	public void start() {
@@ -185,14 +188,14 @@ public class NewProductTests {
 		
 		NavigableMap<String,String> newProductOptionsData = new TreeMap<String,String>();
 		newProductOptionsData.put("group", "Size [select]");
-		newProductOptionsData.put("value", "Large");
+		newProductOptionsData.put("value", "2");
 		newProductOptionsData.put("priceOperator", "*");
 		newProductOptionsData.put("priceAdjustUsd", "78");
 		newProductOptionsData.put("priceAdjustEur", "67");
 		
 		NavigableMap<String,String> newProductOptionsStockData = new TreeMap<String,String>();
 		newProductOptionsStockData.put("group", "Size [select]");
-		newProductOptionsStockData.put("value", "Medium");
+		newProductOptionsStockData.put("value", "3");
 		
 		
 		generalTabButton = wait.until(ExpectedConditions.presenceOfElementLocated(generalTabButtonLocator));
@@ -224,6 +227,9 @@ public class NewProductTests {
 		optionsStockTabButton.click();
 		
 		this.addNewProductOptionStockData(newProductOptionsStockData);
+		
+		saveButton = wait.until(ExpectedConditions.presenceOfElementLocated(saveButtonLocator));
+		saveButton.click();
 	}
 
 	@AfterTest
@@ -275,8 +281,6 @@ public class NewProductTests {
 	public void addNewProductInformationData(NavigableMap<String,String> newProductInformationData){
 		ManipulateFormElements.manipulateSelectText(wait, manufacturerSelectLocator, newProductInformationData.get("Manufacturer"));
 
-		//this.manipulateSelectText(supplierSelectLocator, newProductInformationData.get("Supplier"));
-		
 		ManipulateFormElements.fillInElementWithText(wait, keywordsInputLocator, newProductInformationData.get("Keywords"));
 
 		ManipulateFormElements.fillInElementWithText(wait, shortDescriptionInputLocator, newProductInformationData.get("ShortDescription"));
@@ -327,19 +331,15 @@ public class NewProductTests {
 		
 		ManipulateFormElements.manipulateSelectText(wait, groupSelectLocator, newProductOptionData.get("group"));
 		
-		//ManipulateFormElements.manipulateSelectText(wait, valueSelectLocator, newProductOptionData.get("value"));
-		
 		ManipulateFormElements.manipulateSelectText(wait, priceOperatorSelectLocator, newProductOptionData.get("priceOperator"));
 		
 		ManipulateFormElements.fillInElementWithText(wait, priceAdjustUsdInputLocator, newProductOptionData.get("priceAdjustUsd"));
 
-		ManipulateFormElements.fillInElementWithText(wait, priceAdjustEurInputLocator, newProductOptionData.get("priceAdjustEur"));
+		ManipulateFormElements.fillInElementWithText(wait, priceAdjustEurInputLocator, newProductOptionData.get("priceAdjustEur"));	
 	}
 	
 	public void addNewProductOptionStockData(NavigableMap<String,String> newProductOptionStockData){
 		ManipulateFormElements.manipulateSelectText(wait, combinationGroupSelectLocator, newProductOptionStockData.get("group"));
-		
-		ManipulateFormElements.manipulateSelectText(wait, combinationValueSelectLocator, newProductOptionStockData.get("value"));
 	}
 	
 	public void loginLiteCartWithCorrectCrendentials(String userName, String password) {

@@ -35,14 +35,42 @@ public class ManipulateFormElements {
 		wE.sendKeys(textData);
 	}
 	
-	public static void manipulateSelectText(WebDriverWait wait, By wELocator, String selectValue){
+	public static void manipulateSelectText(WebDriverWait wait, By wELocator, String selectText){
 		WebElement wE;
 		Select s;
 		
 		wE = wait.until(ExpectedConditions.presenceOfElementLocated(wELocator));
 		
 		s = new Select(wE);
-		s.selectByVisibleText(selectValue);
+		s.selectByVisibleText(selectText);
+	}
+	
+	public static void manipulateSelectValue(WebDriverWait wait, By wELocator, String selectValue){
+		WebElement wE;
+		Select s;
+		
+		wE = wait.until(ExpectedConditions.presenceOfElementLocated(wELocator));
+		
+		s = new Select(wE);
+		s.selectByValue(selectValue);
+	}
+	
+	public static void manipulateSelect(WebDriverWait wait, By wELocator1, By wELocator2){
+		WebElement wE;
+		
+		wE = wait.until(ExpectedConditions.elementToBeClickable(wELocator1));
+		wE.click();
+		
+		wE = wait.until(ExpectedConditions.visibilityOfElementLocated(wELocator2));
+		wE.click();
+	}
+	
+	public static void manipulateSelectJS(WebDriverWait wait, WebDriver driver, By wELocator){
+		WebElement wE;
+		
+		wE = wait.until(ExpectedConditions.presenceOfElementLocated(wELocator));
+		wE.click();
+		JavascriptExecutor.class.cast(driver).executeScript("arguments[0].selectedindex = 3", wE);
 	}
 	
 	public static void setDatepicker(WebDriverWait wait, WebDriver driver, String cssSelector, String date) {
