@@ -89,8 +89,6 @@ public class ProductsCartTests {
 
 			wait.until(ExpectedConditions.textToBePresentInElementLocated(cartNumberOfProductsLocator, String.valueOf(i)));
 
-			//cart = wait.until(ExpectedConditions.visibilityOfElementLocated(cartNumberOfProductsLocator));
-			
 			homePageButton = wait.until(ExpectedConditions.visibilityOfElementLocated(homePageButtonLocator));
 			homePageButton.click();
 
