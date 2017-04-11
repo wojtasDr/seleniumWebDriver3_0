@@ -2,6 +2,7 @@ package ru.stqa;
 
 import java.util.List;
 
+import org.assertj.core.api.SoftAssertions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -37,6 +38,7 @@ public class BrowserLogsTests {
 	
 	private WebDriver driver;
 	private WebDriverWait wait;
+	SoftAssertions softAssertions = new SoftAssertions();
 	
 	@BeforeTest
 	public void start() {
@@ -55,9 +57,12 @@ public class BrowserLogsTests {
 		
 		for (int i = 0; i < products.size(); i++){
 			products.get(i).click();
+
+			softAssertions.assertThat(driver.manage().logs().get("browser").getAll().isEmpty());
 			driver.navigate().back();
 			products = wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(productsLocator));
 		}
+		softAssertions.assertAll();
 	}
 	
 	@AfterTest
