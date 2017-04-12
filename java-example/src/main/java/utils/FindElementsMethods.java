@@ -5,6 +5,8 @@ import org.openqa.selenium.InvalidSelectorException;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class FindElementsMethods {
 	public static boolean isElementPresent(WebDriver driver, By locator) {
@@ -16,6 +18,10 @@ public class FindElementsMethods {
 		} catch (NoSuchElementException ex) {
 			return false;
 		}
+	}
+	
+	public static void waitUntillElementBecomesStale(WebDriverWait wait, WebElement wE){
+		wait.until(ExpectedConditions.stalenessOf(wE));
 	}
 
 	public static boolean areElementsPresent(WebDriver driver, By locator) {
